@@ -5,6 +5,7 @@ var uglify = require('gulp-uglify');
 var rename = require('gulp-rename');
 var nodemon = require('gulp-nodemon');
 var stylus = require('gulp-stylus');
+var sourcemaps = require('gulp-sourcemaps');
 var mocha = require('gulp-mocha');
 
 gulp.task('nodemon', ['js', 'stylus', 'lint'], function() {
@@ -28,9 +29,11 @@ gulp.task('lint', function() {
 // Compile Our Stylus
 gulp.task('stylus', function() {
   return gulp.src('client/stylus/main.styl')
+    .pipe(sourcemaps.init())
     .pipe(stylus({
       compress: true
     }))
+    .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('public/css'));
 });
 
@@ -45,7 +48,7 @@ gulp.task('js', function() {
 });
 
 // Run tests
-gulp.task('test-server', function () {
+gulp.task('test', function () {
   return gulp.src('test/**/*.js')
     .pipe(mocha());
 });
