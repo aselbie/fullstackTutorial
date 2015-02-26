@@ -1,19 +1,41 @@
 var gulp = require('gulp');
 var jshint = require('gulp-jshint');
-var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
 var nodemon = require('gulp-nodemon');
 var stylus = require('gulp-stylus');
 var sourcemaps = require('gulp-sourcemaps');
 var mocha = require('gulp-mocha');
+var gutil = require('gulp-util');
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var watchify = require('watchify');
+var watch = require('gulp-watch');
+var browserify = require('browserify');
+var reactify = require('reactify');
 
-gulp.task('nodemon', ['js', 'stylus', 'lint'], function() {
+var bundler = watchify(browserify('./client/app.js', watchify.args));
+bundler.on('update', bundle);
+bundler.on('log', gutil.log);
+
+function bundle() {
+  return bundler.bundle()
+    .on('error', gutil.log.bind(gutil, 'Browserify Error'))
+    .pipe(source('main.js'))
+    .pipe(buffer())
+    .pipe(sourcemaps.init({loadMaps: true})) // loads map from browserify file
+    .pipe(uglify())
+    .pipe(sourcemaps.write('./')) // writes .map file
+    .pipe(gulp.dest('./public/js'));
+}
+gulp.task('watchify', bundle);
+
+
+gulp.task('nodemon', function() {
   return nodemon({
     script: './bin/www',
-    ext: 'js html styl'
+    ext: 'js',
+    ignore: ['/client/', '/public/']
   })
-  .on('change', ['js', 'stylus', 'lint'])
 });
 
 // Lint Task
@@ -29,22 +51,13 @@ gulp.task('lint', function() {
 // Compile Our Stylus
 gulp.task('stylus', function() {
   return gulp.src('client/stylus/main.styl')
+    .pipe(watch('client/stylus/**/*.styl'))
     .pipe(sourcemaps.init())
     .pipe(stylus({
       compress: true
     }))
     .pipe(sourcemaps.write('.'))
     .pipe(gulp.dest('public/css'));
-});
-
-// Concatenate & Minify JS
-gulp.task('js', function() {
-  return gulp.src([])
-    .pipe(concat('main.js'))
-    .pipe(gulp.dest('public/js'))
-    .pipe(rename('main.min.js'))
-    .pipe(uglify())
-    .pipe(gulp.dest('public/js'));
 });
 
 // Run tests
@@ -54,4 +67,4 @@ gulp.task('test', function () {
 });
 
 // Default Task
-gulp.task('default', ['nodemon']);
+gulp.task('default', ['watchify', 'stylus', 'nodemon']);
