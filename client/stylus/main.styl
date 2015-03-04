@@ -1,8 +1,44 @@
 @import 'reset.styl'
 
-body
-  padding: 50px
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif
+html
+  box-sizing: border-box
+  font-family: 'Segoe UI', Frutiger, 'Frutiger Linotype', 'Dejavu Sans', 'Helvetica Neue', Arial, sans-serif;
 
-a
-  color: #00B7FF
+.wrap
+  display: flex
+  flex-direction: column
+  width: 100vw
+  height: 100vh
+
+header
+  background-color: #354961
+  padding: 1em
+  color: #fff
+
+footer 
+  background-color: #354961
+  padding: 1em
+  color: #fff
+  
+.main
+  flex-grow: 1
+  display: flex
+  overflow: hidden
+
+.chapters
+  width: 20em
+  background-color: #647f9c
+
+.chapters li a
+  text-decoration: none
+  color: #fff
+  display: block
+  width: 18em
+  padding: 0.5em 1em
+
+.chapters a.active, .chapters a:hover
+  background-color: #354961
+
+.chapter
+  flex-grow: 1
+  padding: 1em
